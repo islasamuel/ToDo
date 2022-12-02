@@ -1,6 +1,6 @@
 # ToDo Blazor
 App Blazor 
-Pasos para la ejecución del
+Pasos para la ejecución del proyecto
 
 1.- En el proyecto SIslas.ToDo.App.Server, abrir el archivo appsettings.json y cambiar la cadena de conexión AppDB por la conexión local
 
