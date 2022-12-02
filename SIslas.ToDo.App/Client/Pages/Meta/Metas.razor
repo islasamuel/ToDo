@@ -1,0 +1,219 @@
+﻿@page "/metas"
+@inject HttpClient http
+@inject IJSRuntime JS
+
+
+<PageTitle>Metas</PageTitle>
+
+<h3>Metas</h3>
+<hr />
+
+<div class="row mt-2">
+    <div class="col-md-5">
+        <div class="card" style="height:80vh">
+            <div class="card-body">
+                <div class="row">
+                    <button class="btn btn-success" @onclick="@newMeta">Nueva meta</button>
+                </div>
+                <div class="row mt-2">
+                    @if (metas == null)
+                    {
+                        <text>Cargando metas..</text>
+                    }
+                    else if (metas.Length == 0)
+                    {
+                        <text>No existen metas registradas</text>
+                    }
+                    else
+                    {
+                        <div class="col-md-12">
+                            <div class="list-group">
+                                @foreach (var itemMeta in metas)
+                                {
+                                    <div class="list-group-item" id="div_active_@itemMeta.Id" style="cursor:pointer" @onclick="(()=>GetTareas(itemMeta.Id, itemMeta.Nombre))">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <div class="col-md-10">
+                                                @itemMeta.Nombre
+                                            </div>
+                                            <div class="col-md-1">
+                                                <span class="input-group-addon">
+                                                    <i class="oi oi-pencil me-2" style="cursor:pointer" @onclick="(()=>updateMeta(itemMeta))"></i>
+                                                </span>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <span class="input-group-addon">
+                                                    <i class="oi oi-trash me-2" style="cursor:pointer" @onclick="(()=>removeMeta(itemMeta.Id, itemMeta.Nombre))"></i>
+                                                </span>
+                                            </div>
+
+                                        </div>
+                                        <small class="ml-2">Fecha creada @itemMeta.FechaCreacion.ToString("dd/MM/yyyy")</small>
+                                        <div class="row">
+                                            <div class="col-md-9">
+                                                <small id="lblTareasCompletadas_@itemMeta.Id">Tareas completadas @itemMeta.TareasCompletadas/@itemMeta.TotalTareas </small>
+                                            </div>
+                                            <div class="col-md-3 text-end">
+                                                <small id="lblPorcentaje_@itemMeta.Id">@itemMeta.PorcentajeCompletada%</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress">
+                                                    <div id="lblProgress_@itemMeta.Id" class="progress-bar bg-primary" role="progressbar" style="width: @itemMeta.PorcentajeCompletada.ToString("##")%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <SIslas.ToDo.App.Client.Pages.Tarea.Tareas @ref="tarea" strTitulo="@strMeta"
+                                                   IdMeta="IdMeta" tareas="lstTareas"
+                                                   lstTareasSeleccionadas="lstTareasSeleccionadas">
+
+        </SIslas.ToDo.App.Client.Pages.Tarea.Tareas>
+
+
+    </div>
+</div>
+
+
+<Modal @ref="mdlMeta">
+    <Title>
+        Meta
+    </Title>
+    <Body>
+        <EditForm Model="@meta" OnValidSubmit="@AddMeta">
+            <div class="row">
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <InputText @bind-Value="@meta.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(()=> meta.Nombre)"></ValidationMessage>
+                </div>
+
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-success">Aceptar</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" @onclick="() => mdlMeta.Close()">Cancelar</button>
+                </div>
+            </div>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </EditForm>
+    </Body>
+</Modal>
+
+@code {
+
+    private Modal mdlMeta { get; set; }
+    private SIslas.ToDo.App.Client.Pages.Tarea.Tareas tarea { get; set; }
+    private IJSExtensions? jsExtension;
+    Meta[] metas { get; set; }
+    string strMeta = "";
+    int IdMeta = 0;
+    Tarea[]? lstTareas { get; set; }
+    List<int> lstTareasSeleccionadas { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        jsExtension = new(JS);
+        await GetMetas();
+        lstTareasSeleccionadas = new List<int>();
+    }
+
+
+
+
+    Meta meta = new Meta();
+
+    void newMeta()
+    {
+        meta = new Meta();
+        mdlMeta.Open();
+    }
+
+    void updateMeta(Meta data)
+    {
+        meta = data;
+        mdlMeta.Open();
+    }
+
+    async Task AddMeta()
+    {
+        var result = new HttpResponseMessage();
+        if (meta.Id == null || meta.Id == 0)
+        {
+            result = await http.PostAsJsonAsync("api/meta/add", meta);
+        }
+        else
+        {
+            result = await http.PutAsJsonAsync("api/meta/update", meta);
+        }
+
+        var response = await result.Content.ReadFromJsonAsync<Response<bool>>();
+        if (response.Success)
+        {
+            mdlMeta.Close();
+            await jsExtension.SetMessage("La información se guardó correctamente", "success");
+            await GetMetas();
+        }
+        else
+        {
+            await jsExtension.SetMessage(response.Message, "error");
+
+        }
+
+    }
+
+    async Task removeMeta(int IdMeta, string nombreMeta)
+    {
+        var resultConfirm = await jsExtension.SetConfirmMessage("¿Está seguro?", "Desea eliminar la meta <br><strong>" + nombreMeta + "</strong>");
+        if (resultConfirm)
+        {
+            var result = await http.DeleteAsync("api/meta/remove?IdMeta=" + IdMeta);
+            await jsExtension.SetMessage("La meta se borró correctamente", "success");
+            await GetMetas();
+            await GetTareas(0, "Seleccione una meta");
+
+        }
+
+    }
+
+    async Task GetMetas()
+    {
+        var resul = await http.GetFromJsonAsync<Response<Meta[]>>("api/meta/getAll");
+        metas = resul.Data;
+    }
+
+    async Task GetTareas(int IDMeta, string Nombre)
+    {
+        strMeta = Nombre;
+        IdMeta = IDMeta;
+
+        lstTareas = null;
+        lstTareasSeleccionadas = new List<int>();
+        if (IDMeta > 0)
+        {
+            var resul = await http.GetFromJsonAsync<Response<Tarea[]>>("api/tarea/getAllByIdMeta?IdMeta=" + IdMeta);
+            lstTareas = resul.Data;
+        }
+    }
+
+
+    public void Dispose() => jsExtension?.Dispose();
+
+}

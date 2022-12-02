@@ -1,0 +1,276 @@
+﻿@inject HttpClient http
+@inject IJSRuntime JS
+
+
+
+<div class="card" style="height:80vh">
+
+    <div class="card-body">
+        <div class="row bg-success text-white">
+            @if (IdMeta > 0)
+            {
+                <text>@strTitulo</text>
+            }
+            else
+            {
+                <text>Seleccione una meta</text>
+            }
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-12">
+                @if (IdMeta > 0)
+                {
+                    <button class="btn btn-success btn-mini me-1" @onclick="@newTerea">Agregar tarea</button>
+                }
+                @if (lstTareasSeleccionadas.Count >= 1)
+                {
+                    <button class="btn btn-primary btn-mini me-1" @onclick="@SetCompletada">Completar tarea</button>
+
+                    @if (lstTareasSeleccionadas.Count == 1)
+                    {
+                        <button class="btn btn-warning btn-mini me-1" @onclick="(()=>update())">Editar tarea</button>
+
+                    }
+                    <button class="btn btn-danger btn-mini me-1" @onclick="@removeTareas">Eliminar tarea</button>
+                }
+            </div>
+        </div>
+
+        @if (IdMeta > 0 && tareas == null)
+        {
+            <text>Cargando tareas...</text>
+        }
+        else if (IdMeta > 0 && tareas?.Length == 0)
+        {
+            <text>No existen tareas registradas</text>
+        }
+        else if (IdMeta > 0 && tareas?.Length > 0)
+        {
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                                <th scope="col">Tarea</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var itemTarea in tareas)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" @onchange="eventArgs=>{SelectTarea(itemTarea.Id,eventArgs.Value);}" />
+                                    </td>
+
+                                    <td>
+                                        @if (itemTarea.Importante)
+                                        {
+                                            <i class="oi oi-star task-important" style="cursor:pointer" @onclick="(()=>SetImportante(itemTarea))"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="oi oi-star task-no-important" style="cursor:pointer" @onclick="(()=>SetImportante(itemTarea))"></i>
+
+                                        }
+
+                                    </td>
+                                    <td>
+                                        @itemTarea.Nombre
+                                    </td>
+                                    <td>
+                                        @itemTarea.FechaCreacion.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td>
+                                        @itemTarea?.Estatus?.Descripcion
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+
+
+
+
+    </div>
+
+
+</div>
+
+<Modal @ref="mdlTarea">
+    <Title>
+        Tarea
+    </Title>
+    <Body>
+        <EditForm Model="@tarea" OnValidSubmit="@AddTerea">
+            <div class="row">
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <InputText @bind-Value="@tarea.Nombre" class="form-control"></InputText>
+                    <ValidationMessage For="@(()=> tarea.Nombre)"></ValidationMessage>
+                </div>
+
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-success">Aceptar</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" @onclick="() => mdlTarea.Close()">Cancelar</button>
+                </div>
+            </div>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </EditForm>
+    </Body>
+</Modal>
+
+@code {
+    [Parameter]
+    public string strTitulo { get; set; }
+
+    [Parameter]
+    public int IdMeta { get; set; }
+
+    [Parameter]
+    public Tarea[] tareas { get; set; }
+
+    private Modal mdlTarea { get; set; }
+    Tarea tarea = new Tarea();
+
+    private IJSExtensions? jsExtension;
+
+    [Parameter]
+    public List<int> lstTareasSeleccionadas { get; set; }
+
+    protected override void OnInitialized()
+    {
+        jsExtension = new(JS);
+        lstTareasSeleccionadas = new List<int>();
+    }
+
+
+
+    void newTerea()
+    {
+        tarea = new Tarea
+            {
+                IdMeta = IdMeta,
+                IdEstatusTarea = 1
+            };
+
+        mdlTarea.Open();
+    }
+
+    async Task update()
+    {
+        var resul = await http.GetFromJsonAsync<Response<Tarea>>("api/tarea/getById?IdTarea=" + lstTareasSeleccionadas[0].ToString());
+        var data = resul.Data;
+
+        tarea = data;
+        mdlTarea.Open();
+    }
+
+    async Task AddTerea()
+    {
+        var result = new HttpResponseMessage();
+        if (tarea.Id == null || tarea.Id == 0)
+        {
+            result = await http.PostAsJsonAsync("api/tarea/add", tarea);
+        }
+        else
+        {
+            result = await http.PutAsJsonAsync("api/tarea/update", tarea);
+        }
+
+        var response = await result.Content.ReadFromJsonAsync<Response<bool>>();
+        if (response.Success)
+        {
+            mdlTarea.Close();
+            await jsExtension.SetMessage("La información se guardó correctamente", "success");
+            await GetTareas(IdMeta);
+        }
+        else
+        {
+            await jsExtension.SetMessage(response.Message, "error");
+
+        }
+
+    }
+
+    async Task removeTareas()
+    {
+        var resultConfirm = await jsExtension.SetConfirmMessage("¿Está seguro?", "Desea eliminar las tareas tareas seleccionadas");
+        if (resultConfirm)
+        {
+            foreach (var item in lstTareasSeleccionadas)
+            {
+                var result = await http.DeleteAsync("api/tarea/remove?IdTarea=" + item);
+            }
+            await jsExtension.SetMessage("Las tareas seleccionadas se borraron correctamente", "success");
+            await GetTareas(IdMeta);
+            lstTareasSeleccionadas = new List<int>();
+        }
+
+    }
+
+    public async Task GetTareas(int IdMeta)
+    {
+        var resul = await http.GetFromJsonAsync<Response<Tarea[]>>("api/tarea/getAllByIdMeta?IdMeta=" + IdMeta);
+        tareas = resul.Data;
+        int totalTareas = tareas.Count();
+        int tareasCompletadas = tareas.Where(x => x.IdEstatusTarea == 2).Count();
+        decimal porcentaje = (tareasCompletadas * 100) / totalTareas;
+        await jsExtension.updateVista(IdMeta, totalTareas, tareasCompletadas, porcentaje);
+    }
+
+    async Task SetImportante(Tarea data)
+    {
+        data.Importante = !data.Importante;
+        var result = await http.PutAsJsonAsync("api/tarea/set-importante", data);
+        await GetTareas(IdMeta);
+    }
+
+    async Task SetCompletada()
+    {
+        var resultConfirm = await jsExtension.SetConfirmMessage("¿Está seguro?", "Desea completar las tareas tareas seleccionadas");
+        if (resultConfirm)
+        {
+            foreach (var item in lstTareasSeleccionadas)
+            {
+                var result = await http.GetAsync("api/tarea/completar-tarea?IdTarea=" + item);
+            }
+            await GetTareas(IdMeta);
+            await jsExtension.SetMessage("Las tareas seleccionadas se completaron correctamente", "success");
+
+        }
+
+    }
+
+
+    private void SelectTarea(int IdTarea, object CheckValue)
+    {
+        if ((bool)CheckValue)
+        {
+            lstTareasSeleccionadas.Add(IdTarea);
+        }
+        else
+        {
+            lstTareasSeleccionadas = lstTareasSeleccionadas.Where(x => x != IdTarea).ToList();
+        }
+
+
+    }
+
+
+
+    public void Dispose() => jsExtension?.Dispose();
+
+}

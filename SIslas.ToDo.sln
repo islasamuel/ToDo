@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIslas.ToDo.App.Server", "SIslas.ToDo.App\Server\SIslas.ToDo.App.Server.csproj", "{4708D907-EAC5-436B-A5DB-61C6C09E0C09}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIslas.ToDo.App.Client", "SIslas.ToDo.App\Client\SIslas.ToDo.App.Client.csproj", "{1C30F5D4-2D93-46D8-8BE8-C5494330D44A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIslas.ToDo.App.Domain", "SIslas.ToDo.App\Domain\SIslas.ToDo.App.Domain.csproj", "{FDF194AD-87AB-4D08-AA06-544B3C53FF1D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIslas.ToDo.App.Model", "SIslas.ToDo.App\Model\SIslas.ToDo.App.Model.csproj", "{7EAEDCC7-CE4D-470B-A625-B7F69F70507B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIslas.ToDo.App.Repository", "SIslas.ToDo.App\Repository\SIslas.ToDo.App.Repository.csproj", "{B893316D-835B-4367-9AA2-F961503563BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4708D907-EAC5-436B-A5DB-61C6C09E0C09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4708D907-EAC5-436B-A5DB-61C6C09E0C09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4708D907-EAC5-436B-A5DB-61C6C09E0C09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4708D907-EAC5-436B-A5DB-61C6C09E0C09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C30F5D4-2D93-46D8-8BE8-C5494330D44A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C30F5D4-2D93-46D8-8BE8-C5494330D44A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C30F5D4-2D93-46D8-8BE8-C5494330D44A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C30F5D4-2D93-46D8-8BE8-C5494330D44A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDF194AD-87AB-4D08-AA06-544B3C53FF1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDF194AD-87AB-4D08-AA06-544B3C53FF1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDF194AD-87AB-4D08-AA06-544B3C53FF1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDF194AD-87AB-4D08-AA06-544B3C53FF1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EAEDCC7-CE4D-470B-A625-B7F69F70507B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EAEDCC7-CE4D-470B-A625-B7F69F70507B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EAEDCC7-CE4D-470B-A625-B7F69F70507B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EAEDCC7-CE4D-470B-A625-B7F69F70507B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B893316D-835B-4367-9AA2-F961503563BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B893316D-835B-4367-9AA2-F961503563BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B893316D-835B-4367-9AA2-F961503563BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B893316D-835B-4367-9AA2-F961503563BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1879D458-190A-4D0F-BFFF-BEB7A76B11DE}
+	EndGlobalSection
+EndGlobal
