@@ -1,9 +1,10 @@
-# ToDo
+# ToDo Blazor
 App Blazor 
-Pasos para la ejecuci髇 del
-1.- En el proyecto SIslas.ToDo.App.Server, abrir el archivo appsettings.json y cambiar la cadena de conexi髇 AppDB por la conexi髇 local
+Pasos para la ejecuci贸n del
 
-2.- En el proyecto SIslas.ToDo.App.Repository ejecutar el siguiente comando para la migraci髇
+1.- En el proyecto SIslas.ToDo.App.Server, abrir el archivo appsettings.json y cambiar la cadena de conexi贸n AppDB por la conexi贸n local
+
+2.- En el proyecto SIslas.ToDo.App.Repository ejecutar el siguiente comando para la migraci贸n
 > dotnet ef database update --startup-project ../Server
 
 > dotnet ef migrations add InitialCreate --startup-project ../Server
