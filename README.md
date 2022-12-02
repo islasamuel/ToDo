@@ -8,4 +8,5 @@ Pasos para la ejecución del proyecto
 
 2.- En el proyecto SIslas.ToDo.App.Repository ejecutar el siguiente comando para la migración
 > dotnet ef database update --startup-project ../Server
+
 ![UpdateBase](https://user-images.githubusercontent.com/20864100/205207065-3ce04436-2785-4f39-be69-ed700e691ec9.png)
